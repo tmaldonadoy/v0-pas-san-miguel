@@ -26,7 +26,7 @@ type AppState =
 export default function HomePage() {
   const [appState, setAppState] = useState<AppState>("login")
   const [currentUser, setCurrentUser] = useState<{ alias?: string; role?: "nna" | "facilitator" }>({})
-  const [avatarConfig, setAvatarConfig] = useState(null)
+  const [avatarConfig, setAvatarConfig] = useState<any>(null)
   const [emotionalRegistries, setEmotionalRegistries] = useState<any[]>([])
 
   const [loginForm, setLoginForm] = useState({

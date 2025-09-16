@@ -444,11 +444,11 @@ export default function NNASettings({ userAlias, onBack, currentUser, avatarConf
               </div>
               
               {/* Connection Status */}
-              <div className="mt-4 p-3 rounded-lg ${
+              <div className={`mt-4 p-3 rounded-lg ${
                 state.isOnline 
                   ? 'bg-green-50 border border-green-200' 
                   : 'bg-yellow-50 border border-yellow-200'
-              }">
+              }`}>
                 <div className="flex items-center gap-2">
                   <div className={`w-2 h-2 rounded-full ${
                     state.isOnline ? 'bg-green-500' : 'bg-yellow-500'

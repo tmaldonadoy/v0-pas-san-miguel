@@ -291,8 +291,12 @@ export default function DigitalContainment({ onBack, userAlias }: DigitalContain
 
       <main className="max-w-4xl mx-auto p-6">
         <div className="text-center mb-8">
-          <div className="w-16 h-16 bg-gradient-to-br from-blue-400 to-green-400 rounded-full flex items-center justify-center mx-auto mb-4">
-            <Heart className="w-8 h-8 text-white" />
+          <div className="w-16 h-16 rounded-full overflow-hidden shadow-lg mx-auto mb-4">
+            <img 
+              src="/new_logo.png" 
+              alt="Inner World Logo" 
+              className="w-full h-full object-cover"
+            />
           </div>
           <h2 className="text-3xl font-bold text-foreground mb-2">Tu Espacio Seguro</h2>
           <p className="text-lg text-muted-foreground max-w-2xl mx-auto">

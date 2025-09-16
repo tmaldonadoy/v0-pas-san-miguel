@@ -86,8 +86,12 @@ export default function NNADashboard({
       <header className="w-full p-6 border-b border-border/50">
         <div className="max-w-6xl mx-auto flex items-center justify-between">
           <div className="flex items-center gap-4">
-            <div className="w-12 h-12 bg-gradient-to-br from-primary via-accent to-secondary rounded-full flex items-center justify-center">
-              <Heart className="w-6 h-6 text-primary-foreground" />
+            <div className="w-12 h-12 rounded-full overflow-hidden shadow-lg">
+              <img 
+                src="/new_logo.png" 
+                alt="Inner World Logo" 
+                className="w-full h-full object-cover"
+              />
             </div>
             <div>
               <h1 className="text-xl font-bold text-foreground">¡Hola, {userAlias}!</h1>

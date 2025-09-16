@@ -202,10 +202,6 @@ export default function HomePage() {
           <h2 className="text-4xl font-bold text-foreground mb-4 text-balance">
             Un espacio seguro para expresar emociones
           </h2>
-          <p className="text-lg text-muted-foreground max-w-2xl mx-auto text-pretty">
-            Plataforma diseñada para niñas, niños y adolescentes neurodivergentes, donde pueden registrar sus estados
-            emocionales de forma autónoma en un entorno gamificado.
-          </p>
         </div>
 
         {/* Features grid */}
@@ -331,6 +327,14 @@ export default function HomePage() {
             </Tabs>
           </CardContent>
         </Card>
+        
+        {/* Footer with description */}
+        <div className="text-center mt-12 pt-8 border-t border-border/50">
+          <p className="text-lg text-muted-foreground max-w-2xl mx-auto text-pretty">
+            Plataforma diseñada para niñas, niños y adolescentes neurodivergentes, donde pueden registrar sus estados
+            emocionales de forma autónoma en un entorno gamificado.
+          </p>
+        </div>
       </main>
     </div>
   )

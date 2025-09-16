@@ -274,15 +274,15 @@ export default function AvatarEditor({ onSave, initialConfig }: AvatarEditorProp
                 })}
               </div>
               
-              {/* Progress indicator */}
-              <div className="mt-4 p-3 bg-muted rounded-lg">
+              {/* Progress indicator - Solo lectura para NNA */}
+              <div className="mt-4 p-3 bg-muted rounded-lg border-l-4 border-primary">
                 <div className="flex items-center justify-between mb-2">
                   <span className="text-sm font-medium">Progreso del Avatar</span>
                   <span className="text-sm text-muted-foreground">Nivel {config.level}</span>
                 </div>
                 <Progress value={(config.level / 10) * 100} className="h-2" />
                 <p className="text-xs text-muted-foreground mt-2">
-                  Completa más sesiones para desbloquear nuevos elementos
+                  🔒 Solo tu facilitador puede otorgar subidas de nivel como reconocimiento a tu progreso
                 </p>
               </div>
             </CardContent>

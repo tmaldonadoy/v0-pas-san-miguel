@@ -48,7 +48,7 @@ type SyncAction =
   | { type: 'SET_FACILITATOR_CONFIG'; payload: FacilitatorConfig }
   | { type: 'SET_CURRENT_NNA'; payload: NNAProfile }
   | { type: 'UPDATE_NNA_PROFILE'; payload: { id: string; updates: Partial<NNAProfile> } }
-  | { type: 'UPDATE_NNA_LEVEL'; payload: { id: string; level: number } }
+  | { type: 'UPDATE_NNA_LEVEL'; payload: { id: string; level: number; facilitatorId: string } }
   | { type: 'UPDATE_NNA_PERMISSIONS'; payload: { id: string; permissions: Partial<NNAProfile['permissions']> } }
   | { type: 'ADD_PENDING_CHANGE'; payload: any }
   | { type: 'CLEAR_PENDING_CHANGES' }
@@ -119,6 +119,18 @@ function syncReducer(state: SyncState, action: SyncAction): SyncState {
     case 'UPDATE_NNA_LEVEL':
       if (!state.facilitatorConfig) return state
       
+      // VALIDACIÓN CRÍTICA DE SEGURIDAD: Solo facilitador autenticado puede cambiar niveles
+      if (!action.payload.facilitatorId || action.payload.facilitatorId !== state.facilitatorConfig.id) {
+        console.error('SECURITY VIOLATION: Intento de cambio de nivel sin autenticación de facilitador')
+        return state
+      }
+      
+      // Validar rango de nivel
+      if (action.payload.level < 1 || action.payload.level > 10) {
+        console.error('SECURITY VIOLATION: Nivel inválido')
+        return state
+      }
+      
       return syncReducer(state, {
         type: 'UPDATE_NNA_PROFILE',
         payload: {
@@ -180,11 +192,10 @@ function syncReducer(state: SyncState, action: SyncAction): SyncState {
 // Context
 const SyncContext = createContext<{
   state: SyncState
-  dispatch: React.Dispatch<SyncAction>
   actions: {
     initializeFacilitator: (config: FacilitatorConfig) => void
     setCurrentNNA: (nna: NNAProfile) => void
-    updateNNALevel: (id: string, level: number) => void
+    updateNNALevel: (id: string, level: number, facilitatorId?: string) => boolean
     updateNNAPermissions: (id: string, permissions: Partial<NNAProfile['permissions']>) => void
     updateNNAProfile: (id: string, updates: Partial<NNAProfile>) => void
     syncPendingChanges: () => void
@@ -223,27 +234,41 @@ export function SyncProvider({ children }: { children: React.ReactNode }) {
   // Cargar cache al inicializar con persistencia real
   useEffect(() => {
     const loadFromStorage = () => {
+      if (typeof window === 'undefined') return // Solo ejecutar en cliente
+      
       try {
         // Cargar desde localStorage (persistente) y sessionStorage (temporal)
         const persistentData = localStorage.getItem('inner-world-persistent')
         const sessionData = sessionStorage.getItem('inner-world-session')
         
-        if (persistentData) {
-          const parsed = JSON.parse(persistentData)
-          if (parsed.facilitatorConfig) {
-            dispatch({ type: 'UPDATE_CACHE', payload: { key: 'facilitatorConfig', value: parsed.facilitatorConfig } })
-          }
-          if (parsed.currentNNA) {
-            dispatch({ type: 'UPDATE_CACHE', payload: { key: 'currentNNA', value: parsed.currentNNA } })
+        if (persistentData && persistentData.trim()) {
+          try {
+            const parsed = JSON.parse(persistentData)
+            if (parsed && typeof parsed === 'object') {
+              if (parsed.facilitatorConfig) {
+                dispatch({ type: 'UPDATE_CACHE', payload: { key: 'facilitatorConfig', value: parsed.facilitatorConfig } })
+              }
+              if (parsed.currentNNA) {
+                dispatch({ type: 'UPDATE_CACHE', payload: { key: 'currentNNA', value: parsed.currentNNA } })
+              }
+            }
+          } catch (parseError) {
+            console.warn('Invalid persistent data, resetting:', parseError)
+            localStorage.removeItem('inner-world-persistent')
           }
         }
         
-        if (sessionData) {
-          const parsed = JSON.parse(sessionData)
-          if (parsed.pendingChanges) {
-            parsed.pendingChanges.forEach((change: any) => {
-              dispatch({ type: 'ADD_PENDING_CHANGE', payload: change })
-            })
+        if (sessionData && sessionData.trim()) {
+          try {
+            const parsed = JSON.parse(sessionData)
+            if (parsed && typeof parsed === 'object' && parsed.pendingChanges) {
+              parsed.pendingChanges.forEach((change: any) => {
+                dispatch({ type: 'ADD_PENDING_CHANGE', payload: change })
+              })
+            }
+          } catch (parseError) {
+            console.warn('Invalid session data, resetting:', parseError)
+            sessionStorage.removeItem('inner-world-session')
           }
         }
         
@@ -258,6 +283,8 @@ export function SyncProvider({ children }: { children: React.ReactNode }) {
 
   // Usar un callback estable para guardar en storage
   const saveToStorage = useCallback(() => {
+    if (typeof window === 'undefined') return // Solo ejecutar en cliente
+    
     try {
       // Guardar datos persistentes (perfiles, configuración)
       const persistentData = {
@@ -266,7 +293,11 @@ export function SyncProvider({ children }: { children: React.ReactNode }) {
         cache: state.cache,
         timestamp: Date.now()
       }
-      localStorage.setItem('inner-world-persistent', JSON.stringify(persistentData))
+      
+      const persistentJson = JSON.stringify(persistentData)
+      if (persistentJson && persistentJson !== 'undefined') {
+        localStorage.setItem('inner-world-persistent', persistentJson)
+      }
       
       // Guardar datos de sesión (cambios pendientes)
       const sessionData = {
@@ -274,7 +305,11 @@ export function SyncProvider({ children }: { children: React.ReactNode }) {
         isOnline: state.isOnline,
         timestamp: Date.now()
       }
-      sessionStorage.setItem('inner-world-session', JSON.stringify(sessionData))
+      
+      const sessionJson = JSON.stringify(sessionData)
+      if (sessionJson && sessionJson !== 'undefined') {
+        sessionStorage.setItem('inner-world-session', sessionJson)
+      }
     } catch (error) {
       console.error('Error saving to storage:', error)
     }
@@ -309,14 +344,31 @@ export function SyncProvider({ children }: { children: React.ReactNode }) {
       dispatch({ type: 'SET_CURRENT_NNA', payload: nna })
     }, []),
 
-    updateNNALevel: useCallback((id: string, level: number) => {
-      // Solo el facilitador puede cambiar niveles
-      dispatch({ type: 'UPDATE_NNA_LEVEL', payload: { id, level } })
+    updateNNALevel: useCallback((id: string, level: number, facilitatorId?: string) => {
+      // VALIDACIÓN CRÍTICA: Solo el facilitador puede cambiar niveles
+      if (!state.facilitatorConfig || !facilitatorId) {
+        console.warn('Intento de subir nivel sin autenticación de facilitador')
+        return false
+      }
+      
+      if (state.facilitatorConfig.id !== facilitatorId) {
+        console.warn('Intento de subir nivel con facilitador no autorizado')
+        return false
+      }
+      
+      if (level < 1 || level > 10) {
+        console.warn('Nivel inválido, debe estar entre 1 y 10')
+        return false
+      }
+      
+      dispatch({ type: 'UPDATE_NNA_LEVEL', payload: { id, level, facilitatorId } })
       
       if (!state.isOnline) {
-        dispatch({ type: 'ADD_PENDING_CHANGE', payload: { type: 'level_update', id, level } })
+        dispatch({ type: 'ADD_PENDING_CHANGE', payload: { type: 'level_update', id, level, facilitatorId } })
       }
-    }, [state.isOnline]),
+      
+      return true
+    }, [state.isOnline, state.facilitatorConfig]),
 
     updateNNAPermissions: useCallback((id: string, permissions: Partial<NNAProfile['permissions']>) => {
       dispatch({ type: 'UPDATE_NNA_PERMISSIONS', payload: { id, permissions } })
@@ -352,13 +404,13 @@ export function SyncProvider({ children }: { children: React.ReactNode }) {
   }
 
   return (
-    <SyncContext.Provider value={{ state, dispatch, actions }}>
+    <SyncContext.Provider value={{ state, actions }}>
       {children}
     </SyncContext.Provider>
   )
 }
 
-// Hook para facilitar el uso por componentes específicos
+// Hook para facilitar el uso por componentes específicos (solo lectura para NNA)
 export function useNNAProfile(nnaId?: string) {
   const { state, actions } = useSyncContext()
   
@@ -366,23 +418,40 @@ export function useNNAProfile(nnaId?: string) {
   
   return {
     profile,
-    updateLevel: (level: number) => nnaId && actions.updateNNALevel(nnaId, level),
+    // NNA NO puede cambiar su propio nivel (solo el facilitador)
+    updateLevel: null, 
     updatePermissions: (permissions: Partial<NNAProfile['permissions']>) => nnaId && actions.updateNNAPermissions(nnaId, permissions),
     updateProfile: (updates: Partial<NNAProfile>) => nnaId && actions.updateNNAProfile(nnaId, updates),
-    canUpgradeLevel: nnaId ? actions.canNNAUpgradeLevel(nnaId) : false
+    canUpgradeLevel: false // Los NNA nunca pueden subir de nivel por sí mismos
   }
 }
 
-// Hook para facilitadores
+// Hook para facilitadores (CONTROL TOTAL)
 export function useFacilitatorControls() {
   const { state, actions } = useSyncContext()
+  
+  const facilitatorId = state.facilitatorConfig?.id
   
   return {
     facilitatorConfig: state.facilitatorConfig,
     nnaProfiles: state.facilitatorConfig?.nnaProfiles || {},
-    updateNNALevel: actions.updateNNALevel,
+    // Solo el facilitador puede subir niveles con autenticación
+    updateNNALevel: (id: string, level: number) => actions.updateNNALevel(id, level, facilitatorId),
     updateNNAPermissions: actions.updateNNAPermissions,
     updateNNAProfile: actions.updateNNAProfile,
+    upgradeNNALevel: (id: string) => {
+      const currentProfile = actions.getNNAProfile(id)
+      if (currentProfile && currentProfile.level < 10) {
+        return actions.updateNNALevel(id, currentProfile.level + 1, facilitatorId)
+      }
+      return false
+    },
+    setNNALevel: (id: string, level: number) => {
+      if (level >= 1 && level <= 10) {
+        return actions.updateNNALevel(id, level, facilitatorId)
+      }
+      return false
+    },
     isOnline: state.isOnline,
     pendingChanges: state.pendingChanges.length,
     syncPendingChanges: actions.syncPendingChanges

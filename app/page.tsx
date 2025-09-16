@@ -233,8 +233,6 @@ export default function HomePage() {
             className="h-16 w-auto object-contain"
           />
           <div>
-            <p className="text-sm text-muted-foreground">Por los Derechos de Niñas y Niños</p>
-          </div>
         </div>
       </header>
 

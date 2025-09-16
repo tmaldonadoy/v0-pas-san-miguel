@@ -33,7 +33,7 @@ interface EmotionalRegistration {
   mode: "quick" | "guided" | "free"
   guidedResponses?: {
     whatPerceived: string
-    whatHappenedBefore: string
+    whatHappenedBefore?: string
   }
   freeText?: string
   voiceTranscription?: string
@@ -414,7 +414,7 @@ export default function EmotionalRegistration({ userAlias, onBack, onSave }: Emo
                 onChange={(e) =>
                   updateRegistration({
                     guidedResponses: {
-                      ...registration.guidedResponses,
+                      whatPerceived: registration.guidedResponses?.whatPerceived || "",
                       whatHappenedBefore: e.target.value,
                     },
                   })

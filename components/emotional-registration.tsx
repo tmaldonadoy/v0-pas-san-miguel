@@ -80,8 +80,6 @@ export default function EmotionalRegistration({ userAlias, onBack, onSave }: Emo
   const [registration, setRegistration] = useState<Partial<EmotionalRegistration>>({
     sensoryTags: [],
     intensity: 3,
-    timestamp: new Date(),
-    sessionId: `session_${Date.now()}`,
   })
 
   const [isRecording, setIsRecording] = useState(false)
@@ -146,8 +144,8 @@ export default function EmotionalRegistration({ userAlias, onBack, onSave }: Emo
       freeText: registration.freeText,
       voiceTranscription: registration.voiceTranscription,
       images: registration.images,
-      timestamp: registration.timestamp!,
-      sessionId: registration.sessionId!,
+      timestamp: new Date(),
+      sessionId: `session_${Date.now()}`,
     }
 
     onSave(completeRegistration)

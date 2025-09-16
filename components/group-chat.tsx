@@ -65,7 +65,7 @@ export default function GroupChat({
       senderAlias: "Sistema",
       content: "Bienvenidos al chat grupal. Recuerden ser respetuosos y pedir turno para hablar.",
       recipient: "all",
-      timestamp: new Date(),
+      timestamp: new Date('2023-01-01T00:00:00Z'),
       type: "system",
       isPrivate: false,
     },

@@ -226,7 +226,7 @@ export default function Diary({ userAlias, onBack, emotionalRegistries }: DiaryP
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
                 <div className="text-center">
                   <div className="text-2xl font-bold text-primary">{entries.length}</div>
                   <div className="text-sm text-muted-foreground">Total registros</div>
@@ -245,11 +245,98 @@ export default function Diary({ userAlias, onBack, emotionalRegistries }: DiaryP
                 </div>
                 <div className="text-center">
                   <div className="text-2xl">
-                    {entries.length > 0 ? EMOTION_EMOJIS[entries[0].emotion] : "😐"}
+                    {(() => {
+                      if (entries.length === 0) return "😐"
+                      // Encontrar la emoción más frecuente
+                      const emotionCounts = entries.reduce((acc, entry) => {
+                        acc[entry.emotion] = (acc[entry.emotion] || 0) + 1
+                        return acc
+                      }, {} as Record<string, number>)
+                      const mostFrequent = Object.entries(emotionCounts).sort(([,a], [,b]) => b - a)[0][0]
+                      return EMOTION_EMOJIS[mostFrequent] || "😐"
+                    })()}
                   </div>
-                  <div className="text-sm text-muted-foreground">Emoción reciente</div>
+                  <div className="text-sm text-muted-foreground">Emoción más frecuente</div>
                 </div>
               </div>
+              
+              {/* Desglose por emociones */}
+              <div className="border-t pt-6">
+                <h4 className="font-semibold mb-4 text-center">Desglose por emociones registradas</h4>
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                  {Object.entries(EMOTION_EMOJIS).map(([emotion, emoji]) => {
+                    const count = entries.filter(e => e.emotion === emotion).length
+                    const percentage = entries.length > 0 ? ((count / entries.length) * 100).toFixed(0) : 0
+                    const avgIntensity = count > 0 
+                      ? (entries.filter(e => e.emotion === emotion).reduce((sum, e) => sum + e.intensity, 0) / count).toFixed(1)
+                      : "0.0"
+                    
+                    return (
+                      <div key={emotion} className="text-center p-3 bg-muted/30 rounded-lg">
+                        <div className="text-2xl mb-1">{emoji}</div>
+                        <div className="font-semibold text-sm capitalize">{emotion}</div>
+                        <div className="text-xs text-muted-foreground mt-1">
+                          {count} registros ({percentage}%)
+                        </div>
+                        {count > 0 && (
+                          <div className="text-xs text-muted-foreground">
+                            Intensidad: {avgIntensity}/5
+                          </div>
+                        )}
+                      </div>
+                    )
+                  })}
+                </div>
+              </div>
+              
+              {/* Tendencias semanales */}
+              {entries.length > 0 && (
+                <div className="border-t pt-6 mt-6">
+                  <h4 className="font-semibold mb-4 text-center">Tendencia de la última semana</h4>
+                  <div className="text-center">
+                    {(() => {
+                      const lastWeek = entries.filter(e => {
+                        const entryDate = new Date(e.date)
+                        const weekAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000)
+                        return entryDate >= weekAgo
+                      })
+                      
+                      if (lastWeek.length === 0) {
+                        return <p className="text-muted-foreground">No hay registros de esta semana</p>
+                      }
+                      
+                      const positiveEmotions = lastWeek.filter(e => ["alegria", "aceptado", "entretenimiento"].includes(e.emotion)).length
+                      const totalWeek = lastWeek.length
+                      const positivePercentage = ((positiveEmotions / totalWeek) * 100).toFixed(0)
+                      
+                      return (
+                        <div className="space-y-2">
+                          <p className="text-sm">
+                            <span className="font-medium">{totalWeek}</span> registros esta semana
+                          </p>
+                          <p className="text-sm">
+                            <span className={`font-medium ${
+                              parseInt(positivePercentage) >= 60 ? 'text-green-600' : 
+                              parseInt(positivePercentage) >= 40 ? 'text-yellow-600' : 'text-red-600'
+                            }`}>
+                              {positivePercentage}%
+                            </span> emociones positivas
+                          </p>
+                          {parseInt(positivePercentage) >= 60 && (
+                            <p className="text-xs text-green-600">¡Excelente semana emocional! 🌟</p>
+                          )}
+                          {parseInt(positivePercentage) >= 40 && parseInt(positivePercentage) < 60 && (
+                            <p className="text-xs text-yellow-600">Semana equilibrada 💛</p>
+                          )}
+                          {parseInt(positivePercentage) < 40 && (
+                            <p className="text-xs text-blue-600">Recuerda usar el espacio de calma 💙</p>
+                          )}
+                        </div>
+                      )
+                    })()}
+                  </div>
+                </div>
+              )}
             </CardContent>
           </Card>
         </div>

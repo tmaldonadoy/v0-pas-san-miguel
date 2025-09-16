@@ -4,6 +4,7 @@ import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
+import { Progress } from "@/components/ui/progress"
 import { Palette, Shirt, Scissors, Sparkles } from "lucide-react"
 
 interface AvatarConfig {
@@ -236,23 +237,26 @@ export default function AvatarEditor({ onSave, initialConfig }: AvatarEditorProp
             </CardHeader>
             <CardContent>
               <div className="grid grid-cols-2 gap-3">
-                {AVATAR_OPTIONS.accessories.map((option) => (
+                {AVATAR_OPTIONS.accessories.map((option) => {
                   const isUnlocked = config.unlockedItems.includes(option.id)
                   const isSelected = config.accessories.includes(option.id)
-                  <Button
-                    key={option.id}
-                    variant={isSelected ? "default" : "outline"}
-                    className="h-12 flex items-center gap-2"
-                    onClick={() => toggleAccessory(option.id)}
-                    disabled={(!isSelected && config.accessories.length >= 3) || !isUnlocked}
-                  >
-                    <span className="text-lg">{option.icon}</span>
-                    <div className="flex flex-col items-start">
-                      <span className="text-xs">{option.name}</span>
-                      {!isUnlocked && <span className="text-xs text-muted-foreground">🔒 Nivel {Math.ceil(Math.random() * 5) + 1}</span>}
-                    </div>
-                  </Button>
-                ))}
+                  
+                  return (
+                    <Button
+                      key={option.id}
+                      variant={isSelected ? "default" : "outline"}
+                      className="h-12 flex items-center gap-2"
+                      onClick={() => toggleAccessory(option.id)}
+                      disabled={(!isSelected && config.accessories.length >= 3) || !isUnlocked}
+                    >
+                      <span className="text-lg">{option.icon}</span>
+                      <div className="flex flex-col items-start">
+                        <span className="text-xs">{option.name}</span>
+                        {!isUnlocked && <span className="text-xs text-muted-foreground">🔒 Nivel {Math.ceil(Math.random() * 5) + 1}</span>}
+                      </div>
+                    </Button>
+                  )
+                })}
               </div>
               
               {/* Progress indicator */}

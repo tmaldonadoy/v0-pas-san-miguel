@@ -24,12 +24,15 @@ const nextConfig = {
       },
     ];
   },
-  // Development server configuration for Replit
-  ...(process.env.NODE_ENV === 'development' && {
-    experimental: {
-      allowedOrigins: ['*'],
-    },
-  }),
+  // Allow all origins for Replit environment
+  async rewrites() {
+    return [
+      {
+        source: '/(.*)',
+        destination: '/$1',
+      },
+    ];
+  },
 }
 
 export default nextConfig

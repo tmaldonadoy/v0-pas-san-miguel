@@ -14,6 +14,8 @@ interface NNAProfile {
     canChangeSettings: boolean
     maxRegistriesPerDay: number
   }
+  registriesCount?: number
+  joinDate?: string
   lastUpdated: string
 }
 
@@ -218,33 +220,71 @@ export function SyncProvider({ children }: { children: React.ReactNode }) {
     }
   }, [])
 
-  // Cargar cache al inicializar
+  // Cargar cache al inicializar con persistencia real
   useEffect(() => {
-    const loadFromLocalStorage = () => {
+    const loadFromStorage = () => {
       try {
-        const cachedData = localStorage.getItem('inner-world-cache')
-        if (cachedData) {
-          const parsed = JSON.parse(cachedData)
-          dispatch({ type: 'UPDATE_CACHE', payload: { key: 'facilitatorConfig', value: parsed.facilitatorConfig } })
-          dispatch({ type: 'UPDATE_CACHE', payload: { key: 'currentNNA', value: parsed.currentNNA } })
-          dispatch({ type: 'SYNC_FROM_CACHE' })
+        // Cargar desde localStorage (persistente) y sessionStorage (temporal)
+        const persistentData = localStorage.getItem('inner-world-persistent')
+        const sessionData = sessionStorage.getItem('inner-world-session')
+        
+        if (persistentData) {
+          const parsed = JSON.parse(persistentData)
+          if (parsed.facilitatorConfig) {
+            dispatch({ type: 'UPDATE_CACHE', payload: { key: 'facilitatorConfig', value: parsed.facilitatorConfig } })
+          }
+          if (parsed.currentNNA) {
+            dispatch({ type: 'UPDATE_CACHE', payload: { key: 'currentNNA', value: parsed.currentNNA } })
+          }
         }
+        
+        if (sessionData) {
+          const parsed = JSON.parse(sessionData)
+          if (parsed.pendingChanges) {
+            parsed.pendingChanges.forEach((change: any) => {
+              dispatch({ type: 'ADD_PENDING_CHANGE', payload: change })
+            })
+          }
+        }
+        
+        dispatch({ type: 'SYNC_FROM_CACHE' })
       } catch (error) {
-        console.error('Error loading cache:', error)
+        console.error('Error loading from storage:', error)
       }
     }
 
-    loadFromLocalStorage()
+    loadFromStorage()
   }, [])
 
-  // Guardar cache cuando cambie el estado
-  useEffect(() => {
+  // Usar un callback estable para guardar en storage
+  const saveToStorage = useCallback(() => {
     try {
-      localStorage.setItem('inner-world-cache', JSON.stringify(state.cache))
+      // Guardar datos persistentes (perfiles, configuración)
+      const persistentData = {
+        facilitatorConfig: state.facilitatorConfig,
+        currentNNA: state.currentNNA,
+        cache: state.cache,
+        timestamp: Date.now()
+      }
+      localStorage.setItem('inner-world-persistent', JSON.stringify(persistentData))
+      
+      // Guardar datos de sesión (cambios pendientes)
+      const sessionData = {
+        pendingChanges: state.pendingChanges,
+        isOnline: state.isOnline,
+        timestamp: Date.now()
+      }
+      sessionStorage.setItem('inner-world-session', JSON.stringify(sessionData))
     } catch (error) {
-      console.error('Error saving cache:', error)
+      console.error('Error saving to storage:', error)
     }
-  }, [state.cache])
+  }, [state])
+  
+  // Ejecutar guardado cuando cambie el estado
+  useEffect(() => {
+    const timeoutId = setTimeout(saveToStorage, 100) // Debounce de 100ms
+    return () => clearTimeout(timeoutId)
+  }, [saveToStorage])
 
   // Sincronizar cambios pendientes cuando vuelva la conectividad
   useEffect(() => {

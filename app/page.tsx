@@ -226,13 +226,12 @@ export default function HomePage() {
     <div className="min-h-screen bg-gradient-to-br from-background via-card to-muted">
       {/* Header with OPCIÓN branding */}
       <header className="w-full p-6">
-        <div className="max-w-4xl mx-auto flex items-center gap-4">
+        <div className="max-w-4xl mx-auto flex items-center justify-center">
           <img 
             src="/LOGO_OPCION.jpg" 
             alt="OPCIÓN Logo" 
-            className="h-16 w-auto object-contain"
+            className="h-20 w-auto object-contain"
           />
-          <div>
         </div>
       </header>
 

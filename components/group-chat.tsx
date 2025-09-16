@@ -1,6 +1,7 @@
 "use client"
 
 import { Label } from "@/components/ui/label"
+import { useSyncContext, useNNAProfile } from "@/components/sync-provider"
 
 import { useState, useRef, useEffect } from "react"
 import { Button } from "@/components/ui/button"
@@ -58,6 +59,17 @@ export default function GroupChat({
   onRequestTurn,
   onSendToFacilitator,
 }: GroupChatProps) {
+  const { state } = useSyncContext()
+  const { profile } = useNNAProfile()
+  
+  // Permisos del chat basados en el perfil NNA
+  const chatPermissions = {
+    canSendImages: profile?.settings?.canSendImages || false,
+    canUseVoiceNotes: profile?.settings?.canUseVoiceNotes || false,
+    allowPeerMessages: profile?.settings?.allowPeerMessages || true,
+    maxMessagesPerSession: profile?.permissions?.maxRegistriesPerDay || 10,
+  }
+  
   const [messages, setMessages] = useState<Message[]>([
     {
       id: "1",
@@ -78,6 +90,7 @@ export default function GroupChat({
   const [canSendMessage, setCanSendMessage] = useState(true)
   const [lastMessageTime, setLastMessageTime] = useState<Date | null>(null)
   const [isRecording, setIsRecording] = useState(false)
+  const [messageCount, setMessageCount] = useState(0)
 
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const MESSAGE_COOLDOWN = 20000 // 20 seconds between messages
@@ -102,6 +115,18 @@ export default function GroupChat({
 
   const handleSendMessage = () => {
     if (!newMessage.trim() || !canSendMessage) return
+    
+    // Verificar límite de mensajes por sesión
+    if (messageCount >= chatPermissions.maxMessagesPerSession) {
+      alert(`Has alcanzado el límite de ${chatPermissions.maxMessagesPerSession} mensajes por sesión.`)
+      return
+    }
+    
+    // Verificar permisos para mensajes entre pares
+    if (selectedRecipient === "all" && !chatPermissions.allowPeerMessages) {
+      alert("No tienes permisos para enviar mensajes públicos. Contacta al facilitador.")
+      return
+    }
 
     const messageLength = selectedRecipient === "facilitator" ? 600 : 140
     if (newMessage.length > messageLength) return
@@ -129,6 +154,7 @@ export default function GroupChat({
 
     setNewMessage("")
     setLastMessageTime(new Date())
+    setMessageCount(prev => prev + 1)
     setIsTyping(false)
   }
 
@@ -177,14 +203,17 @@ export default function GroupChat({
     }
   }
 
+  // Emociones sincronizadas con el sistema completo
   const getEmotionEmoji = (emotion: string) => {
     const emotions: Record<string, string> = {
-      alegria: "😊",
-      tristeza: "😢",
-      enojo: "😠",
+      ansiedad: "😰",
+      rechazo: "😔",
+      frustracion: "😤",
+      rabia: "😡",
       miedo: "😨",
-      calma: "😌",
-      sorpresa: "😲",
+      entretenimiento: "🎉",
+      alegria: "😊",
+      aceptado: "🤗",
     }
     return emotions[emotion] || "😊"
   }

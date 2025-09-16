@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react"
+import { useState, useEffect, useRef, useCallback } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Progress } from "@/components/ui/progress"
@@ -28,6 +28,11 @@ export default function DigitalContainment({ onBack, userAlias }: DigitalContain
   const [isBreathingActive, setIsBreathingActive] = useState(false)
   const [soundEnabled, setSoundEnabled] = useState(true)
   const [currentColor, setCurrentColor] = useState("#05C7F2")
+  const [activeSound, setActiveSound] = useState<string | null>(null)
+  const [gameCards, setGameCards] = useState<{ id: number; emoji: string; flipped: boolean; matched: boolean }[]>([])
+  const [flippedCards, setFlippedCards] = useState<number[]>([])
+  const [gameScore, setGameScore] = useState(0)
+  const audioRef = useRef<HTMLAudioElement | null>(null)
 
   // Breathing exercise timer
   useEffect(() => {
@@ -52,6 +57,71 @@ export default function DigitalContainment({ onBack, userAlias }: DigitalContain
 
     return () => clearTimeout(timer)
   }, [breathingPhase, isBreathingActive])
+
+  // Initialize memory game
+  useEffect(() => {
+    const emojis = ["🌟", "🌙", "🦋", "🌈"]
+    const cards = [...emojis, ...emojis].map((emoji, index) => ({
+      id: index,
+      emoji,
+      flipped: false,
+      matched: false
+    })).sort(() => Math.random() - 0.5)
+    setGameCards(cards)
+  }, [])
+
+  // Handle card flip in memory game
+  const flipCard = useCallback((cardId: number) => {
+    if (flippedCards.length === 2) return
+    
+    const card = gameCards.find(c => c.id === cardId)
+    if (!card || card.flipped || card.matched) return
+    
+    const newFlipped = [...flippedCards, cardId]
+    setFlippedCards(newFlipped)
+    
+    setGameCards(prev => prev.map(c => 
+      c.id === cardId ? { ...c, flipped: true } : c
+    ))
+    
+    if (newFlipped.length === 2) {
+      const [first, second] = newFlipped
+      const firstCard = gameCards.find(c => c.id === first)
+      const secondCard = gameCards.find(c => c.id === second)
+      
+      if (firstCard?.emoji === secondCard?.emoji) {
+        // Match found
+        setTimeout(() => {
+          setGameCards(prev => prev.map(c => 
+            c.id === first || c.id === second ? { ...c, matched: true } : c
+          ))
+          setGameScore(prev => prev + 1)
+          setFlippedCards([])
+        }, 1000)
+      } else {
+        // No match
+        setTimeout(() => {
+          setGameCards(prev => prev.map(c => 
+            c.id === first || c.id === second ? { ...c, flipped: false } : c
+          ))
+          setFlippedCards([])
+        }, 1000)
+      }
+    }
+  }, [flippedCards, gameCards])
+
+  // Handle sound playing
+  const playSound = useCallback((soundName: string) => {
+    setActiveSound(activeSound === soundName ? null : soundName)
+    // En una implementación real, aquí reproduciríamos el audio
+    console.log(`Playing sound: ${soundName}`)
+  }, [activeSound])
+
+  // Handle SVG coloring
+  const colorShape = useCallback((event: React.MouseEvent<SVGElement>) => {
+    const target = event.target as SVGElement
+    target.style.fill = currentColor
+  }, [currentColor])
 
   const activities = [
     {
@@ -174,10 +244,37 @@ export default function DigitalContainment({ onBack, userAlias }: DigitalContain
 
       <div className="bg-white p-6 rounded-lg border-2 border-dashed border-gray-300 min-h-64">
         <svg viewBox="0 0 400 300" className="w-full h-full">
-          <circle cx="100" cy="100" r="40" fill="transparent" stroke="#ccc" strokeWidth="2" className="cursor-pointer hover:fill-current" style={{ color: currentColor }} onClick={(e) => (e.target as SVGElement).style.fill = currentColor} />
-          <rect x="200" y="60" width="80" height="80" fill="transparent" stroke="#ccc" strokeWidth="2" className="cursor-pointer hover:fill-current" style={{ color: currentColor }} onClick={(e) => (e.target as SVGElement).style.fill = currentColor} />
-          <polygon points="320,140 360,60 400,140" fill="transparent" stroke="#ccc" strokeWidth="2" className="cursor-pointer hover:fill-current" style={{ color: currentColor }} onClick={(e) => (e.target as SVGElement).style.fill = currentColor} />
-          <path d="M50 200 Q 100 160 150 200 T 250 200" fill="transparent" stroke="#ccc" strokeWidth="3" className="cursor-pointer hover:stroke-current" style={{ color: currentColor }} onClick={(e) => (e.target as SVGElement).style.stroke = currentColor} />
+          <circle 
+            cx="100" cy="100" r="40" 
+            fill="transparent" stroke="#ccc" strokeWidth="2" 
+            className="cursor-pointer hover:opacity-75 transition-opacity" 
+            onClick={colorShape} 
+          />
+          <rect 
+            x="200" y="60" width="80" height="80" 
+            fill="transparent" stroke="#ccc" strokeWidth="2" 
+            className="cursor-pointer hover:opacity-75 transition-opacity" 
+            onClick={colorShape} 
+          />
+          <polygon 
+            points="320,140 360,60 400,140" 
+            fill="transparent" stroke="#ccc" strokeWidth="2" 
+            className="cursor-pointer hover:opacity-75 transition-opacity" 
+            onClick={colorShape} 
+          />
+          <path 
+            d="M50 200 Q 100 160 150 200 T 250 200" 
+            fill="transparent" stroke="#ccc" strokeWidth="3" 
+            className="cursor-pointer hover:opacity-75 transition-opacity" 
+            onClick={(e) => {
+              const target = e.target as SVGElement
+              target.style.stroke = currentColor
+            }} 
+          />
+          <text x="50" y="280" className="text-xs fill-gray-500">Círculo</text>
+          <text x="200" y="280" className="text-xs fill-gray-500">Cuadrado</text>
+          <text x="320" y="280" className="text-xs fill-gray-500">Triángulo</text>
+          <text x="150" y="240" className="text-xs fill-gray-500">Línea</text>
         </svg>
       </div>
     </div>
@@ -197,11 +294,22 @@ export default function DigitalContainment({ onBack, userAlias }: DigitalContain
           { name: "Bosque", emoji: "🌲", description: "Sonidos del bosque" },
           { name: "Viento", emoji: "💨", description: "Brisa suave" }
         ].map((sound) => (
-          <Card key={sound.name} className="cursor-pointer hover:shadow-md transition-all">
+          <Card 
+            key={sound.name} 
+            className={`cursor-pointer hover:shadow-md transition-all ${
+              activeSound === sound.name ? 'ring-2 ring-blue-400 bg-blue-50' : ''
+            }`}
+            onClick={() => playSound(sound.name)}
+          >
             <CardContent className="p-4 text-center">
               <div className="text-3xl mb-2">{sound.emoji}</div>
               <h4 className="font-semibold">{sound.name}</h4>
               <p className="text-xs text-muted-foreground">{sound.description}</p>
+              {activeSound === sound.name && (
+                <div className="mt-2 text-blue-600 text-xs font-medium">
+                  ♫ Reproduciendo...
+                </div>
+              )}
             </CardContent>
           </Card>
         ))}
@@ -228,18 +336,50 @@ export default function DigitalContainment({ onBack, userAlias }: DigitalContain
       </div>
 
       <div className="grid grid-cols-4 gap-3 max-w-md mx-auto">
-        {Array.from({ length: 8 }, (_, i) => (
+        {gameCards.map((card) => (
           <div
-            key={i}
-            className="aspect-square bg-gradient-to-br from-blue-100 to-blue-200 rounded-lg border-2 border-blue-300 cursor-pointer hover:scale-105 transition-transform flex items-center justify-center text-2xl"
+            key={card.id}
+            className={`aspect-square rounded-lg border-2 cursor-pointer hover:scale-105 transition-all flex items-center justify-center text-2xl ${
+              card.matched 
+                ? 'bg-green-100 border-green-300 text-green-600' 
+                : card.flipped 
+                  ? 'bg-yellow-100 border-yellow-300' 
+                  : 'bg-gradient-to-br from-blue-100 to-blue-200 border-blue-300'
+            }`}
+            onClick={() => flipCard(card.id)}
           >
-            ?
+            {card.flipped || card.matched ? card.emoji : '?'}
           </div>
         ))}
       </div>
 
-      <div className="text-center">
+      <div className="text-center space-y-2">
+        <p className="text-lg font-semibold">Parejas encontradas: {gameScore}/4</p>
         <p className="text-sm text-muted-foreground">Toca las cartas para voltearlas</p>
+        {gameScore === 4 && (
+          <div className="bg-green-100 border border-green-300 rounded-lg p-3 text-green-800">
+            🎉 ¡Felicidades! Completaste el juego
+          </div>
+        )}
+        <Button 
+          variant="outline" 
+          onClick={() => {
+            const emojis = ["🌟", "🌙", "🦋", "🌈"]
+            const cards = [...emojis, ...emojis].map((emoji, index) => ({
+              id: index,
+              emoji,
+              flipped: false,
+              matched: false
+            })).sort(() => Math.random() - 0.5)
+            setGameCards(cards)
+            setGameScore(0)
+            setFlippedCards([])
+          }}
+          className="mt-2"
+        >
+          <RotateCcw className="w-4 h-4 mr-2" />
+          Nuevo Juego
+        </Button>
       </div>
     </div>
   )

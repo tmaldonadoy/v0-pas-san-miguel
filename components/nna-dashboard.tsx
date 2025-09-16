@@ -14,6 +14,7 @@ interface NNADashboardProps {
   onEditAvatar: () => void
   onStartEmotionalRegistry: () => void
   onOpenChat: () => void
+  onOpenContainment: () => void
   onLogout: () => void
 }
 
@@ -23,6 +24,7 @@ export default function NNADashboard({
   onEditAvatar,
   onStartEmotionalRegistry,
   onOpenChat,
+  onOpenContainment,
   onLogout,
 }: NNADashboardProps) {
   const [currentMode, setCurrentMode] = useState<{
@@ -143,6 +145,16 @@ export default function NNADashboard({
                 <Button onClick={onStartEmotionalRegistry} className="w-full bg-primary hover:bg-primary/90">
                   <Heart className="w-4 h-4 mr-2" />
                   Registrar Emoción
+                </Button>
+
+                <Button 
+                  onClick={onOpenContainment} 
+                  variant="outline" 
+                  className="w-full"
+                  style={{ backgroundColor: "var(--opcion-blue)10", borderColor: "var(--opcion-blue)" }}
+                >
+                  <Heart className="w-4 h-4 mr-2" style={{ color: "var(--opcion-blue)" }} />
+                  Espacio de Calma
                 </Button>
 
                 <Button

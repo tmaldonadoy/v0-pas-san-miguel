@@ -12,6 +12,7 @@ import NNADashboard from "@/components/nna-dashboard"
 import EmotionalRegistration from "@/components/emotional-registration"
 import GroupChat from "@/components/group-chat"
 import FacilitatorDashboard from "@/components/facilitator-dashboard"
+import DigitalContainment from "@/components/digital-containment"
 
 type AppState =
   | "login"
@@ -20,6 +21,7 @@ type AppState =
   | "emotional-registration"
   | "group-chat"
   | "facilitator-dashboard"
+  | "digital-containment"
 
 export default function HomePage() {
   const [appState, setAppState] = useState<AppState>("login")
@@ -109,6 +111,10 @@ export default function HomePage() {
     setLoginForm({ alias: "", pin: "", facilitatorEmail: "", facilitatorPassword: "" })
   }
 
+  const handleOpenContainment = () => {
+    setAppState("digital-containment")
+  }
+
   if (appState === "group-chat") {
     return (
       <GroupChat
@@ -120,6 +126,15 @@ export default function HomePage() {
         onSendMessage={handleSendMessage}
         onRequestTurn={handleRequestTurn}
         onSendToFacilitator={handleSendToFacilitator}
+      />
+    )
+  }
+
+  if (appState === "digital-containment") {
+    return (
+      <DigitalContainment
+        userAlias={currentUser.alias || ""}
+        onBack={() => setAppState("nna-dashboard")}
       />
     )
   }
@@ -146,6 +161,7 @@ export default function HomePage() {
         onEditAvatar={handleEditAvatar}
         onStartEmotionalRegistry={handleStartEmotionalRegistry}
         onOpenChat={handleOpenChat}
+        onOpenContainment={handleOpenContainment}
         onLogout={handleLogout}
       />
     )
@@ -166,12 +182,16 @@ export default function HomePage() {
       {/* Header with OPCIÓN branding */}
       <header className="w-full p-6">
         <div className="max-w-4xl mx-auto flex items-center gap-4">
-          <div className="w-16 h-16 bg-gradient-to-br from-primary via-accent to-secondary rounded-full flex items-center justify-center">
-            <Heart className="w-8 h-8 text-primary-foreground" />
+          <div className="w-16 h-16 rounded-full overflow-hidden border-2 border-white shadow-lg">
+            <img 
+              src="/LOGO_OPCION.jpg" 
+              alt="OPCIÓN Logo" 
+              className="w-full h-full object-cover"
+            />
           </div>
           <div>
-            <h1 className="text-2xl font-bold text-foreground">Inner World</h1>
-            <p className="text-sm text-muted-foreground">Plataforma Terapéutica Digital</p>
+            <h1 className="text-2xl font-bold" style={{ color: "var(--opcion-orange)" }}>OPCIÓN</h1>
+            <p className="text-sm text-muted-foreground">Por los Derechos de Niñas y Niños</p>
           </div>
         </div>
       </header>
@@ -190,10 +210,10 @@ export default function HomePage() {
 
         {/* Features grid */}
         <div className="grid md:grid-cols-3 gap-6 mb-12">
-          <Card className="border-2 border-primary/20 hover:border-primary/40 transition-colors">
+          <Card className="border-2 hover:shadow-lg transition-all duration-200" style={{ borderColor: "var(--opcion-orange)" }}>
             <CardHeader className="text-center">
-              <div className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
-                <Sparkles className="w-6 h-6 text-primary" />
+              <div className="w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-4" style={{ backgroundColor: "var(--opcion-orange)20" }}>
+                <Sparkles className="w-6 h-6" style={{ color: "var(--opcion-orange)" }} />
               </div>
               <CardTitle className="text-lg">Avatar Personalizable</CardTitle>
             </CardHeader>
@@ -204,10 +224,10 @@ export default function HomePage() {
             </CardContent>
           </Card>
 
-          <Card className="border-2 border-accent/20 hover:border-accent/40 transition-colors">
+          <Card className="border-2 hover:shadow-lg transition-all duration-200" style={{ borderColor: "var(--opcion-pink)" }}>
             <CardHeader className="text-center">
-              <div className="w-12 h-12 bg-accent/10 rounded-full flex items-center justify-center mx-auto mb-4">
-                <Heart className="w-6 h-6 text-accent" />
+              <div className="w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-4" style={{ backgroundColor: "var(--opcion-pink)20" }}>
+                <Heart className="w-6 h-6" style={{ color: "var(--opcion-pink)" }} />
               </div>
               <CardTitle className="text-lg">Registro Emocional</CardTitle>
             </CardHeader>
@@ -218,10 +238,10 @@ export default function HomePage() {
             </CardContent>
           </Card>
 
-          <Card className="border-2 border-secondary/20 hover:border-secondary/40 transition-colors">
+          <Card className="border-2 hover:shadow-lg transition-all duration-200" style={{ borderColor: "var(--opcion-blue)" }}>
             <CardHeader className="text-center">
-              <div className="w-12 h-12 bg-secondary/10 rounded-full flex items-center justify-center mx-auto mb-4">
-                <Users className="w-6 h-6 text-secondary" />
+              <div className="w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-4" style={{ backgroundColor: "var(--opcion-blue)20" }}>
+                <Users className="w-6 h-6" style={{ color: "var(--opcion-blue)" }} />
               </div>
               <CardTitle className="text-lg">Modos Individual y Grupal</CardTitle>
             </CardHeader>

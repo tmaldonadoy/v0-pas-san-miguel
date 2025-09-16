@@ -12,6 +12,8 @@ interface AvatarConfig {
   clothing: string
   accessories: string[]
   emotion: string
+  level: number
+  unlockedItems: string[]
 }
 
 const AVATAR_OPTIONS = {
@@ -19,16 +21,21 @@ const AVATAR_OPTIONS = {
     { id: "light", name: "Clara", color: "#F5DEB3" },
     { id: "medium", name: "Morena", color: "#D2B48C" },
     { id: "dark", name: "Oscura", color: "#8B4513" },
+    { id: "warm", name: "Cálida", color: "#DEB887" },
   ],
   hair: [
     { id: "short", name: "Corto", color: "#8B4513" },
     { id: "long", name: "Largo", color: "#654321" },
     { id: "curly", name: "Rizado", color: "#2F1B14" },
+    { id: "wavy", name: "Ondulado", color: "#A0522D" },
+    { id: "straight", name: "Liso", color: "#8B4513" },
   ],
   clothing: [
     { id: "casual", name: "Casual", color: "#4A90E2" },
     { id: "formal", name: "Elegante", color: "#7B68EE" },
     { id: "sporty", name: "Deportivo", color: "#32CD32" },
+    { id: "colorful", name: "Colorido", color: "#FF6B6B" },
+    { id: "cozy", name: "Cómodo", color: "#FFB347" },
   ],
   accessories: [
     { id: "glasses", name: "Lentes", icon: "👓" },
@@ -36,6 +43,9 @@ const AVATAR_OPTIONS = {
     { id: "necklace", name: "Collar", icon: "📿" },
     { id: "watch", name: "Reloj", icon: "⌚" },
     { id: "earrings", name: "Aretes", icon: "💎" },
+    { id: "backpack", name: "Mochila", icon: "🎒" },
+    { id: "bow", name: "Moño", icon: "🎀" },
+    { id: "bracelet", name: "Pulsera", icon: "📿" },
   ],
 }
 
@@ -61,6 +71,8 @@ export default function AvatarEditor({ onSave, initialConfig }: AvatarEditorProp
       clothing: "casual",
       accessories: [],
       emotion: "happy",
+      level: 1,
+      unlockedItems: ["light", "medium", "short", "long", "casual", "sporty", "glasses", "hat"],
     },
   )
 
@@ -220,22 +232,39 @@ export default function AvatarEditor({ onSave, initialConfig }: AvatarEditorProp
           <Card>
             <CardHeader>
               <CardTitle className="text-lg">Accesorios</CardTitle>
-              <CardDescription>Máximo 3 accesorios</CardDescription>
+              <CardDescription>Máximo 3 accesorios • Nivel {config.level}</CardDescription>
             </CardHeader>
             <CardContent>
               <div className="grid grid-cols-2 gap-3">
                 {AVATAR_OPTIONS.accessories.map((option) => (
+                  const isUnlocked = config.unlockedItems.includes(option.id)
+                  const isSelected = config.accessories.includes(option.id)
                   <Button
                     key={option.id}
-                    variant={config.accessories.includes(option.id) ? "default" : "outline"}
+                    variant={isSelected ? "default" : "outline"}
                     className="h-12 flex items-center gap-2"
                     onClick={() => toggleAccessory(option.id)}
-                    disabled={!config.accessories.includes(option.id) && config.accessories.length >= 3}
+                    disabled={(!isSelected && config.accessories.length >= 3) || !isUnlocked}
                   >
                     <span className="text-lg">{option.icon}</span>
-                    <span className="text-xs">{option.name}</span>
+                    <div className="flex flex-col items-start">
+                      <span className="text-xs">{option.name}</span>
+                      {!isUnlocked && <span className="text-xs text-muted-foreground">🔒 Nivel {Math.ceil(Math.random() * 5) + 1}</span>}
+                    </div>
                   </Button>
                 ))}
+              </div>
+              
+              {/* Progress indicator */}
+              <div className="mt-4 p-3 bg-muted rounded-lg">
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-sm font-medium">Progreso del Avatar</span>
+                  <span className="text-sm text-muted-foreground">Nivel {config.level}</span>
+                </div>
+                <Progress value={(config.level / 10) * 100} className="h-2" />
+                <p className="text-xs text-muted-foreground mt-2">
+                  Completa más sesiones para desbloquear nuevos elementos
+                </p>
               </div>
             </CardContent>
           </Card>

@@ -49,12 +49,14 @@ interface EmotionalRegistrationProps {
 }
 
 const EMOTIONS = [
-  { id: "alegria", name: "Alegría", emoji: "😊", color: "bg-yellow-400" },
-  { id: "tristeza", name: "Tristeza", emoji: "😢", color: "bg-blue-400" },
-  { id: "enojo", name: "Enojo", emoji: "😠", color: "bg-red-400" },
-  { id: "miedo", name: "Miedo", emoji: "😨", color: "bg-purple-400" },
-  { id: "calma", name: "Calma", emoji: "😌", color: "bg-green-400" },
-  { id: "sorpresa", name: "Sorpresa", emoji: "😲", color: "bg-orange-400" },
+  { id: "ansiedad", name: "Ansiedad", emoji: "😰", color: "bg-red-100", iconColor: "#E53E3E", description: "Me siento nervioso o preocupado" },
+  { id: "rechazo", name: "Rechazo", emoji: "😔", color: "bg-gray-100", iconColor: "#718096", description: "Siento que no me aceptan" },
+  { id: "frustracion", name: "Frustración", emoji: "😤", color: "bg-orange-100", iconColor: "#DD6B20", description: "Las cosas no salen como quiero" },
+  { id: "rabia", name: "Rabia", emoji: "😡", color: "bg-red-200", iconColor: "#C53030", description: "Estoy muy enojado" },
+  { id: "miedo", name: "Miedo", emoji: "😨", color: "bg-purple-100", iconColor: "#805AD5", description: "Algo me da miedo o temor" },
+  { id: "entretenimiento", name: "Entretenimiento", emoji: "🎉", color: "bg-blue-100", iconColor: "#3182CE", description: "Me estoy divirtiendo" },
+  { id: "alegria", name: "Alegría", emoji: "😊", color: "bg-yellow-100", iconColor: "#D69E2E", description: "Me siento feliz y contento" },
+  { id: "aceptado", name: "Aceptado", emoji: "🤗", color: "bg-green-100", iconColor: "#38A169", description: "Me siento querido y aceptado" },
 ]
 
 const SENSORY_TAGS = [
@@ -222,26 +224,56 @@ export default function EmotionalRegistration({ userAlias, onBack, onSave }: Emo
         <p className="text-muted-foreground">Selecciona la emoción que mejor describe cómo te sientes ahora</p>
       </div>
 
-      <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
         {EMOTIONS.map((emotion) => (
           <Card
             key={emotion.id}
-            className={`cursor-pointer border-2 transition-all hover:scale-105 ${
+            className={`cursor-pointer border-2 transition-all hover:scale-105 hover:shadow-lg ${
               registration.emotion === emotion.id
-                ? "border-primary bg-primary/10 shadow-lg"
+                ? `border-[${emotion.iconColor}] shadow-lg`
                 : "border-border hover:border-primary/50"
             }`}
+            style={{
+              backgroundColor: registration.emotion === emotion.id ? emotion.color : 'transparent',
+              borderColor: registration.emotion === emotion.id ? emotion.iconColor : undefined
+            }}
             onClick={() => updateRegistration({ emotion: emotion.id })}
           >
-            <CardContent className="flex flex-col items-center p-6 space-y-3">
-              <div className="text-4xl">{emotion.emoji}</div>
+            <CardContent className="flex flex-col items-center p-4 space-y-2">
+              <div className="text-3xl bounce-gentle">{emotion.emoji}</div>
               <div className="text-center">
-                <p className="font-medium text-foreground">{emotion.name}</p>
+                <p className="font-semibold text-sm text-foreground">{emotion.name}</p>
+                <p className="text-xs text-muted-foreground mt-1">{emotion.description}</p>
               </div>
             </CardContent>
           </Card>
         ))}
       </div>
+
+      {/* Quick registration option */}
+      {registration.emotion && (
+        <div className="text-center">
+          <Button
+            onClick={() => {
+              const quickRegistration: EmotionalRegistration = {
+                emotion: registration.emotion!,
+                intensity: 3,
+                sensoryTags: [],
+                mode: "quick",
+                timestamp: new Date(),
+                sessionId: `session_${Date.now()}`,
+              }
+              onSave(quickRegistration)
+            }}
+            className="bg-primary hover:bg-primary/90 text-lg px-8 py-3"
+          >
+            ✨ Registro Rápido
+          </Button>
+          <p className="text-xs text-muted-foreground mt-2">
+            O continúa para agregar más detalles
+          </p>
+        </div>
+      )}
 
       <div className="flex gap-3">
         <Button variant="outline" onClick={() => setCurrentStep("mode")} className="flex-1">

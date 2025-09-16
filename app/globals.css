@@ -4,83 +4,77 @@
 @custom-variant dark (&:is(.dark *));
 
 :root {
-  /* Updated color palette to match exact OPCIÓN branding colors */
-  --background: oklch(1 0 0); /* Pure white for main background */
-  --foreground: oklch(0.35 0.02 258); /* Soft gray for text */
-  --card: oklch(0.98 0.02 85); /* Soft yellow for card backgrounds */
-  --card-foreground: oklch(0.25 0.02 258); /* Darker gray for text on cards */
-  --popover: oklch(1 0 0); /* White for popovers */
-  --popover-foreground: oklch(0.25 0.02 258); /* Dark gray for popover text */
-  --primary: oklch(0.65 0.2 35); /* #F27B35 - Orange */
-  --primary-foreground: oklch(1 0 0); /* White text on primary */
-  --secondary: oklch(0.7 0.15 65); /* #F2B035 - Yellow */
-  --secondary-foreground: oklch(1 0 0); /* White text on secondary */
-  --muted: oklch(0.97 0.01 85); /* #F2F2F2 - Light gray */
-  --muted-foreground: oklch(0.35 0.02 258); /* Gray text on muted */
-  --accent: oklch(0.68 0.18 45); /* #F21BA7 - Pink */
-  --accent-foreground: oklch(1 0 0); /* White text on accents */
-  --destructive: oklch(0.55 0.2 15); /* Red for destructive actions */
-  --destructive-foreground: oklch(1 0 0); /* White text on destructive */
-  --border: oklch(0.9 0.01 258); /* Light gray borders */
-  --input: oklch(0.95 0.01 258); /* Light gray input backgrounds */
-  --ring: oklch(0.65 0.2 35 / 0.5); /* Orange focus ring */
-  --chart-1: oklch(0.55 0.15 250); /* #05C7F2 - Blue */
-  --chart-2: oklch(0.68 0.18 45); /* #F27B35 - Orange */
-  --chart-3: oklch(0.7 0.15 65); /* #F2B035 - Yellow */
-  --chart-4: oklch(0.65 0.15 200); /* #05C7F2 - Blue variant */
-  --chart-5: oklch(0.6 0.2 300); /* #F21BA7 - Pink variant */
-  --radius: 0.75rem; /* Slightly more rounded for child-friendly feel */
-  --sidebar: oklch(1 0 0); /* White sidebar */
-  --sidebar-foreground: oklch(0.35 0.02 258); /* Gray sidebar text */
-  --sidebar-primary: oklch(0.68 0.18 45); /* Orange primary sidebar items */
-  --sidebar-primary-foreground: oklch(1 0 0); /* White text on primary sidebar */
-  --sidebar-accent: oklch(0.7 0.15 65); /* Yellow accent sidebar items */
-  --sidebar-accent-foreground: oklch(1 0 0); /* White text on accent sidebar */
-  --sidebar-border: oklch(0.9 0.01 258); /* Light gray sidebar borders */
-  --sidebar-ring: oklch(0.65 0.2 35 / 0.5); /* Orange sidebar focus ring */
-
-  /* Added specific OPCIÓN brand colors as custom properties */
-  --opcion-pink: #f21ba7;
-  --opcion-blue: #05c7f2;
-  --opcion-yellow: #f2b035;
-  --opcion-orange: #f27b35;
-  --opcion-gray: #f2f2f2;
+  /* OPCIÓN Official Brand Colors */
+  --opcion-orange: #F27B35;
+  --opcion-yellow: #F2B035;
+  --opcion-blue: #05C7F2;
+  --opcion-pink: #F21BA7;
+  --opcion-gray: #F2F2F2;
+  
+  /* Design System based on OPCIÓN colors */
+  --background: #FFFFFF;
+  --foreground: #2D3748;
+  --card: #FFFFFF;
+  --card-foreground: #2D3748;
+  --popover: #FFFFFF;
+  --popover-foreground: #2D3748;
+  --primary: var(--opcion-orange);
+  --primary-foreground: #FFFFFF;
+  --secondary: var(--opcion-yellow);
+  --secondary-foreground: #FFFFFF;
+  --muted: var(--opcion-gray);
+  --muted-foreground: #718096;
+  --accent: var(--opcion-pink);
+  --accent-foreground: #FFFFFF;
+  --destructive: #E53E3E;
+  --destructive-foreground: #FFFFFF;
+  --border: #E2E8F0;
+  --input: #F7FAFC;
+  --ring: var(--opcion-orange);
+  --chart-1: var(--opcion-blue);
+  --chart-2: var(--opcion-orange);
+  --chart-3: var(--opcion-yellow);
+  --chart-4: var(--opcion-pink);
+  --chart-5: #9F7AEA;
+  --radius: 12px;
+  --sidebar: #FFFFFF;
+  --sidebar-foreground: #2D3748;
+  --sidebar-primary: var(--opcion-orange);
+  --sidebar-primary-foreground: #FFFFFF;
+  --sidebar-accent: var(--opcion-yellow);
+  --sidebar-accent-foreground: #FFFFFF;
+  --sidebar-border: #E2E8F0;
+  --sidebar-ring: var(--opcion-orange);
 }
 
 .dark {
-  /* Updated dark mode colors to maintain accessibility while keeping vibrant accents */
-  --background: oklch(0.1 0.02 258); /* Dark background */
-  --foreground: oklch(0.95 0.01 258); /* Light text */
-  --card: oklch(0.15 0.02 258); /* Dark card background */
-  --card-foreground: oklch(0.95 0.01 258); /* Light text on cards */
-  --popover: oklch(0.15 0.02 258); /* Dark popover */
-  --popover-foreground: oklch(0.95 0.01 258); /* Light popover text */
-  --primary: oklch(0.68 0.18 45); /* Keep vibrant orange in dark mode */
-  --primary-foreground: oklch(1 0 0); /* White text on primary */
-  --secondary: oklch(0.7 0.15 65); /* Keep warm amber */
-  --secondary-foreground: oklch(1 0 0); /* White text on secondary */
-  --muted: oklch(0.2 0.02 258); /* Dark muted */
-  --muted-foreground: oklch(0.7 0.01 258); /* Light muted text */
-  --accent: oklch(0.68 0.18 45); /* Keep vibrant orange accent */
-  --accent-foreground: oklch(1 0 0); /* White text on accent */
-  --destructive: oklch(0.6 0.2 15); /* Slightly brighter red for dark mode */
-  --destructive-foreground: oklch(1 0 0); /* White text on destructive */
-  --border: oklch(0.25 0.02 258); /* Dark borders */
-  --input: oklch(0.2 0.02 258); /* Dark input backgrounds */
-  --ring: oklch(0.68 0.18 45 / 0.5); /* Orange focus ring */
-  --chart-1: oklch(0.6 0.15 250); /* Brighter blue for dark charts */
-  --chart-2: oklch(0.68 0.18 45); /* Orange for charts */
-  --chart-3: oklch(0.7 0.15 65); /* Amber for charts */
-  --chart-4: oklch(0.7 0.15 200); /* Brighter cyan for charts */
-  --chart-5: oklch(0.65 0.2 300); /* Brighter purple for charts */
-  --sidebar: oklch(0.12 0.02 258); /* Dark sidebar */
-  --sidebar-foreground: oklch(0.95 0.01 258); /* Light sidebar text */
-  --sidebar-primary: oklch(0.68 0.18 45); /* Orange primary sidebar */
-  --sidebar-primary-foreground: oklch(1 0 0); /* White text on primary sidebar */
-  --sidebar-accent: oklch(0.7 0.15 65); /* Amber accent sidebar */
-  --sidebar-accent-foreground: oklch(1 0 0); /* White text on accent sidebar */
-  --sidebar-border: oklch(0.25 0.01 258); /* Dark sidebar borders */
-  --sidebar-ring: oklch(0.68 0.18 45 / 0.5); /* Orange sidebar focus ring */
+  --background: #1A202C;
+  --foreground: #F7FAFC;
+  --card: #2D3748;
+  --card-foreground: #F7FAFC;
+  --popover: #2D3748;
+  --popover-foreground: #F7FAFC;
+  --primary: var(--opcion-orange);
+  --primary-foreground: #FFFFFF;
+  --secondary: var(--opcion-yellow);
+  --secondary-foreground: #FFFFFF;
+  --muted: #4A5568;
+  --muted-foreground: #A0AEC0;
+  --accent: var(--opcion-pink);
+  --accent-foreground: #FFFFFF;
+  --destructive: #FC8181;
+  --destructive-foreground: #FFFFFF;
+  --border: #4A5568;
+  --input: #2D3748;
+  --ring: var(--opcion-orange);
+  --sidebar: #2D3748;
+  --sidebar-foreground: #F7FAFC;
+  --sidebar-primary: var(--opcion-orange);
+  --sidebar-primary-foreground: #FFFFFF;
+  --sidebar-accent: var(--opcion-yellow);
+  --sidebar-accent-foreground: #FFFFFF;
+  --sidebar-border: #4A5568;
+  --sidebar-ring: var(--opcion-orange);
 }
 
 @theme inline {
@@ -130,5 +124,39 @@
   }
   body {
     @apply bg-background text-foreground;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  }
+  
+  /* Custom animations for child-friendly interactions */
+  .bounce-gentle {
+    animation: bounce-gentle 2s infinite;
+  }
+  
+  @keyframes bounce-gentle {
+    0%, 20%, 53%, 80%, 100% {
+      transform: translate3d(0,0,0);
+    }
+    40%, 43% {
+      transform: translate3d(0, -8px, 0);
+    }
+    70% {
+      transform: translate3d(0, -4px, 0);
+    }
+    90% {
+      transform: translate3d(0, -2px, 0);
+    }
+  }
+  
+  .pulse-soft {
+    animation: pulse-soft 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  }
+  
+  @keyframes pulse-soft {
+    0%, 100% {
+      opacity: 1;
+    }
+    50% {
+      opacity: .7;
+    }
   }
 }

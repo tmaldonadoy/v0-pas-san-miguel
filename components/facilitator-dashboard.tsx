@@ -268,14 +268,11 @@ export default function FacilitatorDashboard({ facilitatorName, onLogout, onBack
         <div className="max-w-7xl mx-auto px-6 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
-              <div
-                className="w-12 h-12 rounded-full flex items-center justify-center"
-                style={{ backgroundColor: "var(--opcion-orange)" }}
-              >
+              <div className="w-12 h-12 rounded-full overflow-hidden shadow-lg">
                 <img 
                   src="/new_logo.png" 
                   alt="Inner World Logo" 
-                  className="w-6 h-6 rounded-full object-cover"
+                  className="w-full h-full object-cover"
                 />
               </div>
               <div>

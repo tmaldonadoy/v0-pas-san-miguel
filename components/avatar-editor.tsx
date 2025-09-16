@@ -50,13 +50,16 @@ const AVATAR_OPTIONS = {
   ],
 }
 
+// Emociones sincronizadas con emotional-registration
 const EMOTIONS = [
-  { id: "happy", name: "Feliz", color: "bg-yellow-400", emoji: "😊" },
-  { id: "sad", name: "Triste", color: "bg-blue-400", emoji: "😢" },
-  { id: "angry", name: "Enojado", color: "bg-red-400", emoji: "😠" },
-  { id: "scared", name: "Asustado", color: "bg-purple-400", emoji: "😨" },
-  { id: "calm", name: "Tranquilo", color: "bg-green-400", emoji: "😌" },
-  { id: "surprised", name: "Sorprendido", color: "bg-orange-400", emoji: "😲" },
+  { id: "ansiedad", name: "Ansiedad", color: "bg-red-400", emoji: "😰" },
+  { id: "rechazo", name: "Rechazo", color: "bg-gray-400", emoji: "😔" },
+  { id: "frustracion", name: "Frustración", color: "bg-orange-400", emoji: "😤" },
+  { id: "rabia", name: "Rabia", color: "bg-red-500", emoji: "😡" },
+  { id: "miedo", name: "Miedo", color: "bg-purple-400", emoji: "😨" },
+  { id: "entretenimiento", name: "Entretenimiento", color: "bg-blue-400", emoji: "🎉" },
+  { id: "alegria", name: "Alegría", color: "bg-yellow-400", emoji: "😊" },
+  { id: "aceptado", name: "Aceptado", color: "bg-green-400", emoji: "🤗" },
 ]
 
 interface AvatarEditorProps {
@@ -71,7 +74,7 @@ export default function AvatarEditor({ onSave, initialConfig }: AvatarEditorProp
       hair: "short",
       clothing: "casual",
       accessories: [],
-      emotion: "happy",
+      emotion: "alegria",
       level: 1,
       unlockedItems: ["light", "medium", "short", "long", "casual", "sporty", "glasses", "hat"],
     },

@@ -13,6 +13,8 @@ import EmotionalRegistration from "@/components/emotional-registration"
 import GroupChat from "@/components/group-chat"
 import FacilitatorDashboard from "@/components/facilitator-dashboard"
 import DigitalContainment from "@/components/digital-containment"
+import Diary from "@/components/diary"
+import NNASettings from "@/components/nna-settings"
 
 type AppState =
   | "login"
@@ -22,11 +24,13 @@ type AppState =
   | "group-chat"
   | "facilitator-dashboard"
   | "digital-containment"
+  | "diary"
+  | "nna-settings"
 
 export default function HomePage() {
   const [appState, setAppState] = useState<AppState>("login")
   const [currentUser, setCurrentUser] = useState<{ alias?: string; role?: "nna" | "facilitator" }>({})
-  const [avatarConfig, setAvatarConfig] = useState<any>(null)
+  const [avatarConfig, setAvatarConfig] = useState<any>({ emotion: "alegria", level: 1 })
   const [emotionalRegistries, setEmotionalRegistries] = useState<any[]>([])
 
   const [loginForm, setLoginForm] = useState({
@@ -44,9 +48,9 @@ export default function HomePage() {
       status: "online" as const,
       emotion: "alegria",
     },
-    { id: "user2", alias: "Ana", avatar: null, status: "typing" as const, emotion: "calma" },
-    { id: "user3", alias: "Carlos", avatar: null, status: "hand-raised" as const, emotion: "sorpresa" },
-    { id: "facilitator", alias: "Facilitador", avatar: null, status: "online" as const, emotion: "calma" },
+    { id: "user2", alias: "Ana", avatar: null, status: "typing" as const, emotion: "aceptado" },
+    { id: "user3", alias: "Carlos", avatar: null, status: "hand-raised" as const, emotion: "entretenimiento" },
+    { id: "facilitator", alias: "Facilitador", avatar: null, status: "online" as const, emotion: "aceptado" },
   ]
 
   const handleInputChange = (field: string, value: string) => {
@@ -81,7 +85,19 @@ export default function HomePage() {
   }
 
   const handleSaveEmotionalRegistry = (registration: any) => {
-    setEmotionalRegistries((prev) => [...prev, registration])
+    // Normalizar la estructura para el diario
+    const normalizedEntry = {
+      id: Date.now().toString(),
+      date: registration.timestamp?.toISOString() || new Date().toISOString(),
+      emotion: registration.emotion,
+      intensity: registration.intensity || 3,
+      mode: registration.mode,
+      content: registration.freeText || 
+               registration.guidedResponses?.whatPerceived || 
+               `Registro emocional de ${registration.emotion}`,
+      tags: registration.sensoryTags || []
+    }
+    setEmotionalRegistries((prev) => [...prev, normalizedEntry])
     setAppState("nna-dashboard")
     // Show success message and update dashboard data
   }
@@ -115,6 +131,14 @@ export default function HomePage() {
     setAppState("digital-containment")
   }
 
+  const handleOpenDiary = () => {
+    setAppState("diary")
+  }
+
+  const handleOpenNNASettings = () => {
+    setAppState("nna-settings")
+  }
+
   if (appState === "group-chat") {
     return (
       <GroupChat
@@ -133,6 +157,25 @@ export default function HomePage() {
   if (appState === "digital-containment") {
     return (
       <DigitalContainment
+        userAlias={currentUser.alias || ""}
+        onBack={() => setAppState("nna-dashboard")}
+      />
+    )
+  }
+
+  if (appState === "diary") {
+    return (
+      <Diary
+        userAlias={currentUser.alias || ""}
+        onBack={() => setAppState("nna-dashboard")}
+        emotionalRegistries={emotionalRegistries}
+      />
+    )
+  }
+
+  if (appState === "nna-settings") {
+    return (
+      <NNASettings
         userAlias={currentUser.alias || ""}
         onBack={() => setAppState("nna-dashboard")}
       />
@@ -162,6 +205,8 @@ export default function HomePage() {
         onStartEmotionalRegistry={handleStartEmotionalRegistry}
         onOpenChat={handleOpenChat}
         onOpenContainment={handleOpenContainment}
+        onOpenDiary={handleOpenDiary}
+        onOpenNNASettings={handleOpenNNASettings}
         onLogout={handleLogout}
       />
     )

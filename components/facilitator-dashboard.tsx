@@ -57,21 +57,25 @@ interface FacilitatorDashboardProps {
 }
 
 const emotionIcons = {
-  alegria: Smile,
-  tristeza: Frown,
-  enojo: Angry,
+  ansiedad: AlertTriangle,
+  rechazo: Frown,
+  frustracion: Angry,
+  rabia: Angry,
   miedo: AlertTriangle,
-  calma: "text-green-500",
-  sorpresa: Zap,
+  entretenimiento: Zap,
+  alegria: Smile,
+  aceptado: Smile,
 }
 
 const emotionColors = {
-  alegria: "text-yellow-500",
-  tristeza: "text-blue-500",
-  enojo: "text-red-500",
+  ansiedad: "text-red-500",
+  rechazo: "text-gray-500",
+  frustracion: "text-orange-500",
+  rabia: "text-red-600",
   miedo: "text-purple-500",
-  calma: "text-green-500",
-  sorpresa: "text-orange-500",
+  entretenimiento: "text-blue-500",
+  alegria: "text-yellow-500",
+  aceptado: "text-green-500",
 }
 
 export default function FacilitatorDashboard({ facilitatorName, onLogout, onBack }: FacilitatorDashboardProps) {
@@ -100,7 +104,7 @@ export default function FacilitatorDashboard({ facilitatorName, onLogout, onBack
           alias: "Carlos",
           avatar: { skin: "medium", hair: "black", clothing: "formal" },
           status: "hand-raised",
-          currentEmotion: "sorpresa",
+          currentEmotion: "entretenimiento",
           emotionIntensity: 3,
           lastActivity: "Hace 1 min",
           sessionTime: 25,
@@ -111,7 +115,7 @@ export default function FacilitatorDashboard({ facilitatorName, onLogout, onBack
           alias: "Sofia",
           avatar: { skin: "dark", hair: "curly", clothing: "colorful" },
           status: "typing",
-          currentEmotion: "calma",
+          currentEmotion: "aceptado",
           emotionIntensity: 2,
           lastActivity: "Ahora",
           sessionTime: 20,
@@ -132,7 +136,7 @@ export default function FacilitatorDashboard({ facilitatorName, onLogout, onBack
           alias: "María",
           avatar: { skin: "light", hair: "blonde", clothing: "casual" },
           status: "online",
-          currentEmotion: "tristeza",
+          currentEmotion: "rechazo",
           emotionIntensity: 3,
           lastActivity: "Hace 5 min",
           sessionTime: 15,
@@ -268,7 +272,11 @@ export default function FacilitatorDashboard({ facilitatorName, onLogout, onBack
                 className="w-12 h-12 rounded-full flex items-center justify-center"
                 style={{ backgroundColor: "var(--opcion-orange)" }}
               >
-                <Heart className="w-6 h-6 text-white" />
+                <img 
+                  src="/new_logo.png" 
+                  alt="Inner World Logo" 
+                  className="w-6 h-6 rounded-full object-cover"
+                />
               </div>
               <div>
                 <h1 className="text-2xl font-bold">Panel Facilitador</h1>

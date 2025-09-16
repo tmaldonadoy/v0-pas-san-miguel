@@ -15,6 +15,8 @@ interface NNADashboardProps {
   onStartEmotionalRegistry: () => void
   onOpenChat: () => void
   onOpenContainment: () => void
+  onOpenDiary: () => void
+  onOpenNNASettings: () => void
   onLogout: () => void
 }
 
@@ -25,6 +27,8 @@ export default function NNADashboard({
   onStartEmotionalRegistry,
   onOpenChat,
   onOpenContainment,
+  onOpenDiary,
+  onOpenNNASettings,
   onLogout,
 }: NNADashboardProps) {
   const [currentMode, setCurrentMode] = useState<{
@@ -55,15 +59,18 @@ export default function NNADashboard({
   // Mock data for demonstration
   const todayRegistries = 3
   const weeklyGoal = 5
-  const currentEmotion = avatarConfig?.emotion || "happy"
+  const currentEmotion = avatarConfig?.emotion || "alegria"
 
+  // Emociones sincronizadas con emotional-registration
   const emotionEmojis: Record<string, string> = {
-    happy: "😊",
-    sad: "😢",
-    angry: "😠",
-    scared: "😨",
-    calm: "😌",
-    surprised: "😲",
+    ansiedad: "😰",
+    rechazo: "😔",
+    frustracion: "😤",
+    rabia: "😡",
+    miedo: "😨",
+    entretenimiento: "🎉",
+    alegria: "😊",
+    aceptado: "🤗",
   }
 
   const recentActivities = [
@@ -95,16 +102,22 @@ export default function NNADashboard({
             </div>
             <div>
               <h1 className="text-xl font-bold text-foreground">¡Hola, {userAlias}!</h1>
-              <p className="text-sm text-muted-foreground">
-                Modo:{" "}
+              <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                <span>Nivel {avatarConfig?.level || 1}</span>
+                <span>•</span>
+                <span>Modo:</span>
                 <Badge variant={currentMode.currentMode === "individual" ? "default" : "secondary"}>
                   {currentMode.currentMode === "individual" ? "Individual" : "Taller"}
                 </Badge>
-              </p>
+              </div>
             </div>
           </div>
 
           <div className="flex items-center gap-2">
+            <Button variant="ghost" size="sm" onClick={onOpenNNASettings}>
+              <Settings className="w-4 h-4 mr-2" />
+              Configuración
+            </Button>
             <Button variant="ghost" size="sm" onClick={onLogout}>
               <LogOut className="w-4 h-4 mr-2" />
               Salir
@@ -176,7 +189,7 @@ export default function NNADashboard({
                   )}
                 </Button>
 
-                <Button variant="outline" className="w-full bg-transparent">
+                <Button onClick={onOpenDiary} variant="outline" className="w-full bg-transparent">
                   <BookOpen className="w-4 h-4 mr-2" />
                   Mi Diario
                 </Button>

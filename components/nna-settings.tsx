@@ -1,18 +1,48 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Label } from "@/components/ui/label"
-import { ArrowLeft, User, MessageSquare, Camera, Mic, Shield, Bell } from "lucide-react"
+import { ArrowLeft, User, MessageSquare, Camera, Mic, Shield, Bell, Palette } from "lucide-react"
+import { useSyncContext, useNNAProfile } from "@/components/sync-provider"
 
 interface NNASettingsProps {
   userAlias: string
   onBack: () => void
+  currentUser?: { alias?: string; role?: "nna" | "facilitator" }
+  avatarConfig?: any
+  emotionalRegistries?: any[]
 }
 
-export default function NNASettings({ userAlias, onBack }: NNASettingsProps) {
+// Emociones sincronizadas
+const EMOTIONS = [
+  { id: "ansiedad", name: "Ansiedad", color: "bg-red-400", emoji: "😰" },
+  { id: "rechazo", name: "Rechazo", color: "bg-gray-400", emoji: "😔" },
+  { id: "frustracion", name: "Frustración", color: "bg-orange-400", emoji: "😤" },
+  { id: "rabia", name: "Rabia", color: "bg-red-500", emoji: "😡" },
+  { id: "miedo", name: "Miedo", color: "bg-purple-400", emoji: "😨" },
+  { id: "entretenimiento", name: "Entretenimiento", color: "bg-blue-400", emoji: "🎉" },
+  { id: "alegria", name: "Alegría", color: "bg-yellow-400", emoji: "😊" },
+  { id: "aceptado", name: "Aceptado", color: "bg-green-400", emoji: "🤗" },
+]
+
+export default function NNASettings({ userAlias, onBack, currentUser, avatarConfig, emotionalRegistries = [] }: NNASettingsProps) {
+  const { state } = useSyncContext()
+  const { profile, updateProfile, canUpgradeLevel } = useNNAProfile()
+  
+  // Datos del perfil NNA desde el contexto de sincronización
+  const nnaData = {
+    level: profile?.level || avatarConfig?.level || 1,
+    registriesCount: emotionalRegistries.length,
+    joinDate: "15 de enero, 2024",
+    permissions: profile?.permissions || {
+      canUpgradeLevel: false,
+      canChangeSettings: true,
+      maxRegistriesPerDay: 10
+    }
+  }
   const [settings, setSettings] = useState({
     // Privacy Settings
     shareRegistriesWithGroup: false,
@@ -39,9 +69,42 @@ export default function NNASettings({ userAlias, onBack }: NNASettingsProps) {
   }
 
   const saveSettings = () => {
-    // TODO: Implement actual settings save
+    // Guardar configuración usando el sistema de sincronización
+    if (updateProfile) {
+      updateProfile({
+        settings: settings,
+        lastUpdated: new Date().toISOString()
+      })
+    }
+    
+    // Aplicar configuraciones de accesibilidad
+    if (settings.largeText) {
+      document.documentElement.style.fontSize = '1.1em'
+    } else {
+      document.documentElement.style.fontSize = ''
+    }
+    
+    if (settings.highContrast) {
+      document.documentElement.classList.add('high-contrast')
+    } else {
+      document.documentElement.classList.remove('high-contrast')
+    }
+    
+    if (settings.reducedAnimations) {
+      document.documentElement.style.setProperty('--animation-duration', '0s')
+    } else {
+      document.documentElement.style.removeProperty('--animation-duration')
+    }
+    
     console.log("Configuración guardada:", settings)
   }
+  
+  // Cargar configuración del perfil al montar el componente
+  useEffect(() => {
+    if (profile?.settings) {
+      setSettings(prev => ({ ...prev, ...profile.settings }))
+    }
+  }, [profile])
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-card to-muted">
@@ -293,6 +356,58 @@ export default function NNASettings({ userAlias, onBack }: NNASettingsProps) {
             </CardContent>
           </Card>
 
+          {/* Avatar Emotion State */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Palette className="w-5 h-5 text-primary" />
+                Estado Emocional del Avatar
+              </CardTitle>
+              <CardDescription>
+                Configura cómo quieres que tu avatar refleje tus emociones
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                {EMOTIONS.map((emotion) => {
+                  const isSelected = avatarConfig?.emotion === emotion.id
+                  return (
+                    <div
+                      key={emotion.id}
+                      className={`p-3 rounded-lg border-2 cursor-pointer transition-all hover:scale-105 ${
+                        isSelected 
+                          ? 'border-primary bg-primary/10' 
+                          : 'border-gray-200 hover:border-gray-300'
+                      }`}
+                      onClick={() => {
+                        if (updateProfile) {
+                          updateProfile({ 
+                            avatar: { ...avatarConfig, emotion: emotion.id },
+                            lastUpdated: new Date().toISOString()
+                          })
+                        }
+                      }}
+                    >
+                      <div className="text-center">
+                        <div className="text-2xl mb-1">{emotion.emoji}</div>
+                        <div className="text-xs font-medium capitalize">{emotion.name}</div>
+                        {isSelected && (
+                          <div className="text-xs text-primary mt-1 font-semibold">Actual</div>
+                        )}
+                      </div>
+                    </div>
+                  )
+                })}
+              </div>
+              <div className="mt-4 p-3 bg-blue-50 rounded-lg">
+                <p className="text-sm text-blue-800">
+                  💡 <strong>Consejo:</strong> Tu avatar cambiará su expresión según la emoción que selecciones. 
+                  También puedes cambiarla cuando hagas registros emocionales.
+                </p>
+              </div>
+            </CardContent>
+          </Card>
+
           {/* Account Info */}
           <Card>
             <CardHeader>
@@ -310,20 +425,45 @@ export default function NNASettings({ userAlias, onBack }: NNASettingsProps) {
                 <div>
                   <Label className="text-sm font-medium">Nivel actual</Label>
                   <div className="flex items-center gap-2">
-                    <Badge variant="default">Nivel 1</Badge>
+                    <Badge variant="default">Nivel {nnaData.level}</Badge>
                     <span className="text-sm text-muted-foreground">
-                      (Solo el facilitador puede cambiar tu nivel)
+                      {canUpgradeLevel 
+                        ? "(Puedes subir de nivel)"
+                        : "(Solo el facilitador puede cambiar tu nivel)"}
                     </span>
                   </div>
                 </div>
                 <div>
                   <Label className="text-sm font-medium">Registros totales</Label>
-                  <p className="text-sm text-muted-foreground">15 emociones registradas</p>
+                  <p className="text-sm text-muted-foreground">{nnaData.registriesCount} emociones registradas</p>
                 </div>
                 <div>
                   <Label className="text-sm font-medium">Fecha de registro</Label>
-                  <p className="text-sm text-muted-foreground">15 de enero, 2024</p>
+                  <p className="text-sm text-muted-foreground">{nnaData.joinDate}</p>
                 </div>
+              </div>
+              
+              {/* Connection Status */}
+              <div className="mt-4 p-3 rounded-lg ${
+                state.isOnline 
+                  ? 'bg-green-50 border border-green-200' 
+                  : 'bg-yellow-50 border border-yellow-200'
+              }">
+                <div className="flex items-center gap-2">
+                  <div className={`w-2 h-2 rounded-full ${
+                    state.isOnline ? 'bg-green-500' : 'bg-yellow-500'
+                  }`} />
+                  <span className={`text-sm font-medium ${
+                    state.isOnline ? 'text-green-800' : 'text-yellow-800'
+                  }`}>
+                    {state.isOnline ? 'Conectado' : 'Desconectado'}
+                  </span>
+                </div>
+                {state.pendingChanges.length > 0 && (
+                  <p className="text-xs text-yellow-700 mt-1">
+                    Tienes {state.pendingChanges.length} cambios pendientes de sincronizar
+                  </p>
+                )}
               </div>
             </CardContent>
           </Card>

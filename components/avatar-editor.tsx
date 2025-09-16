@@ -68,8 +68,8 @@ interface AvatarEditorProps {
 }
 
 export default function AvatarEditor({ onSave, initialConfig }: AvatarEditorProps) {
-  const [config, setConfig] = useState<AvatarConfig>(
-    initialConfig || {
+  const [config, setConfig] = useState<AvatarConfig>(() => {
+    const defaultConfig = {
       skin: "light",
       hair: "short",
       clothing: "casual",
@@ -77,22 +77,32 @@ export default function AvatarEditor({ onSave, initialConfig }: AvatarEditorProp
       emotion: "alegria",
       level: 1,
       unlockedItems: ["light", "medium", "short", "long", "casual", "sporty", "glasses", "hat"],
-    },
-  )
+    }
+    
+    return initialConfig ? {
+      ...defaultConfig,
+      ...initialConfig,
+      accessories: initialConfig.accessories || [],
+      unlockedItems: initialConfig.unlockedItems || defaultConfig.unlockedItems,
+    } : defaultConfig
+  })
 
   const updateConfig = (key: keyof AvatarConfig, value: any) => {
     setConfig((prev) => ({ ...prev, [key]: value }))
   }
 
   const toggleAccessory = (accessoryId: string) => {
-    setConfig((prev) => ({
-      ...prev,
-      accessories: prev.accessories.includes(accessoryId)
-        ? prev.accessories.filter((id) => id !== accessoryId)
-        : prev.accessories.length < 3
-          ? [...prev.accessories, accessoryId]
-          : prev.accessories,
-    }))
+    setConfig((prev) => {
+      const accessories = prev.accessories || []
+      return {
+        ...prev,
+        accessories: accessories.includes(accessoryId)
+          ? accessories.filter((id) => id !== accessoryId)
+          : accessories.length < 3
+            ? [...accessories, accessoryId]
+            : accessories,
+      }
+    })
   }
 
   const handleSave = () => {
@@ -132,12 +142,14 @@ export default function AvatarEditor({ onSave, initialConfig }: AvatarEditorProp
             {/* Current configuration display */}
             <div className="text-center space-y-2">
               <div className="flex flex-wrap gap-2 justify-center">
-                {config.accessories.map((acc) => (
-                  <Badge key={acc} variant="secondary" className="text-xs">
-                    {AVATAR_OPTIONS.accessories.find((a) => a.id === acc)?.icon}{" "}
-                    {AVATAR_OPTIONS.accessories.find((a) => a.id === acc)?.name}
-                  </Badge>
-                ))}
+                {(config.accessories || []).map((acc) => {
+                  const accessory = AVATAR_OPTIONS.accessories.find((a) => a.id === acc)
+                  return accessory ? (
+                    <Badge key={acc} variant="secondary" className="text-xs">
+                      {accessory.icon} {accessory.name}
+                    </Badge>
+                  ) : null
+                })}
               </div>
               <p className="text-sm text-muted-foreground">
                 Estado: {EMOTIONS.find((e) => e.id === config.emotion)?.name}
@@ -241,8 +253,8 @@ export default function AvatarEditor({ onSave, initialConfig }: AvatarEditorProp
             <CardContent>
               <div className="grid grid-cols-2 gap-3">
                 {AVATAR_OPTIONS.accessories.map((option) => {
-                  const isUnlocked = config.unlockedItems.includes(option.id)
-                  const isSelected = config.accessories.includes(option.id)
+                  const isUnlocked = (config.unlockedItems || []).includes(option.id)
+                  const isSelected = (config.accessories || []).includes(option.id)
                   
                   return (
                     <Button
@@ -250,7 +262,7 @@ export default function AvatarEditor({ onSave, initialConfig }: AvatarEditorProp
                       variant={isSelected ? "default" : "outline"}
                       className="h-12 flex items-center gap-2"
                       onClick={() => toggleAccessory(option.id)}
-                      disabled={(!isSelected && config.accessories.length >= 3) || !isUnlocked}
+                      disabled={(!isSelected && (config.accessories || []).length >= 3) || !isUnlocked}
                     >
                       <span className="text-lg">{option.icon}</span>
                       <div className="flex flex-col items-start">

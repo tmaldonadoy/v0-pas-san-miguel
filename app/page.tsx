@@ -15,6 +15,7 @@ import FacilitatorDashboard from "@/components/facilitator-dashboard"
 import DigitalContainment from "@/components/digital-containment"
 import Diary from "@/components/diary"
 import NNASettings from "@/components/nna-settings"
+import { SyncProvider } from "@/components/sync-provider"
 
 type AppState =
   | "login"
@@ -27,7 +28,7 @@ type AppState =
   | "diary"
   | "nna-settings"
 
-export default function HomePage() {
+function HomePageContent() {
   const [appState, setAppState] = useState<AppState>("login")
   const [currentUser, setCurrentUser] = useState<{ alias?: string; role?: "nna" | "facilitator" }>({})
   const [avatarConfig, setAvatarConfig] = useState<any>({ emotion: "alegria", level: 1 })
@@ -376,5 +377,13 @@ export default function HomePage() {
         </div>
       </main>
     </div>
+  )
+}
+
+export default function HomePage() {
+  return (
+    <SyncProvider>
+      <HomePageContent />
+    </SyncProvider>
   )
 }

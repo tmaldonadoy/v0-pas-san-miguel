@@ -38,6 +38,7 @@ interface Participant {
   lastActivity: string
   sessionTime: number
   emotionalRegistries: number
+  level?: number
 }
 
 interface Session {
@@ -174,15 +175,23 @@ export default function FacilitatorDashboard({ facilitatorName, onLogout, onBack
         <CardHeader className="pb-3">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <div className="relative">
-                <Avatar className="w-12 h-12 border-2 border-white shadow-md">
+              {/* Previsualización mejorada del avatar */}
+              <div className="relative group">
+                <Avatar className="w-16 h-16 border-2 border-white shadow-md transition-transform group-hover:scale-105">
                   <AvatarImage
-                    src={`/generic-fantasy-character.png?height=48&width=48&query=avatar-${participant.avatar?.skin}-${participant.avatar?.hair}`}
+                    src={`/generic-fantasy-character.png?height=64&width=64&query=avatar-${participant.avatar?.skin}-${participant.avatar?.hair}`}
                   />
-                  <AvatarFallback style={{ backgroundColor: "var(--opcion-blue)" }} className="text-white font-bold">
+                  <AvatarFallback style={{ backgroundColor: "var(--opcion-blue)" }} className="text-white font-bold text-lg">
                     {participant.alias[0]}
                   </AvatarFallback>
                 </Avatar>
+                
+                {/* Indicador de nivel del avatar */}
+                <div className="absolute -top-2 -left-2 w-6 h-6 rounded-full bg-gradient-to-br from-yellow-400 to-orange-500 border-2 border-white flex items-center justify-center">
+                  <span className="text-xs font-bold text-white">{participant.level || 1}</span>
+                </div>
+                
+                {/* Indicador de estado */}
                 <div
                   className={`absolute -bottom-1 -right-1 w-4 h-4 rounded-full border-2 border-white ${
                     participant.status === "online"
@@ -194,6 +203,35 @@ export default function FacilitatorDashboard({ facilitatorName, onLogout, onBack
                           : "bg-gray-400"
                   }`}
                 />
+                
+                {/* Tooltip con detalles del avatar */}
+                <div className="absolute left-full ml-2 top-0 opacity-0 group-hover:opacity-100 transition-opacity bg-white rounded-lg shadow-lg p-3 z-10 min-w-[200px]">
+                  <h4 className="font-semibold text-sm mb-2">Avatar de {participant.alias}</h4>
+                  <div className="space-y-1 text-xs">
+                    <div className="flex justify-between">
+                      <span className="text-gray-600">Nivel:</span>
+                      <span className="font-medium">{participant.level || 1}/10</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-gray-600">Piel:</span>
+                      <span className="font-medium">{participant.avatar?.skin || 'light'}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-gray-600">Cabello:</span>
+                      <span className="font-medium">{participant.avatar?.hair || 'short'}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-gray-600">Ropa:</span>
+                      <span className="font-medium">{participant.avatar?.clothing || 'casual'}</span>
+                    </div>
+                    {participant.avatar?.accessories && participant.avatar.accessories.length > 0 && (
+                      <div className="flex justify-between">
+                        <span className="text-gray-600">Accesorios:</span>
+                        <span className="font-medium">{participant.avatar.accessories.length}</span>
+                      </div>
+                    )}
+                  </div>
+                </div>
               </div>
               <div>
                 <CardTitle className="text-lg">{participant.alias}</CardTitle>

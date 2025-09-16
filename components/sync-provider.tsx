@@ -2,6 +2,20 @@
 
 import React, { createContext, useContext, useReducer, useEffect, useCallback } from 'react'
 
+// Helper seguro para parsing JSON que previene errores SSR
+function safeParse(jsonString: string | null, fallback: any = null) {
+  if (!jsonString || jsonString.trim() === '' || jsonString === 'undefined') {
+    return fallback
+  }
+  
+  try {
+    return JSON.parse(jsonString)
+  } catch (error) {
+    console.warn('JSON parsing failed:', error, 'for string:', jsonString)
+    return fallback
+  }
+}
+
 // Tipos para el sistema de sincronización
 interface NNAProfile {
   id: string
@@ -243,7 +257,7 @@ export function SyncProvider({ children }: { children: React.ReactNode }) {
         
         if (persistentData && persistentData.trim()) {
           try {
-            const parsed = JSON.parse(persistentData)
+            const parsed = safeParse(persistentData, {})
             if (parsed && typeof parsed === 'object') {
               if (parsed.facilitatorConfig) {
                 dispatch({ type: 'UPDATE_CACHE', payload: { key: 'facilitatorConfig', value: parsed.facilitatorConfig } })
@@ -260,7 +274,7 @@ export function SyncProvider({ children }: { children: React.ReactNode }) {
         
         if (sessionData && sessionData.trim()) {
           try {
-            const parsed = JSON.parse(sessionData)
+            const parsed = safeParse(sessionData, {})
             if (parsed && typeof parsed === 'object' && parsed.pendingChanges) {
               parsed.pendingChanges.forEach((change: any) => {
                 dispatch({ type: 'ADD_PENDING_CHANGE', payload: change })

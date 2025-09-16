@@ -174,10 +174,10 @@ export default function DigitalContainment({ onBack, userAlias }: DigitalContain
 
       <div className="bg-white p-6 rounded-lg border-2 border-dashed border-gray-300 min-h-64">
         <svg viewBox="0 0 400 300" className="w-full h-full">
-          <circle cx="100" cy="100" r="40" fill="transparent" stroke="#ccc" strokeWidth="2" className="cursor-pointer hover:fill-current" style={{ color: currentColor }} onClick={(e) => e.target.style.fill = currentColor} />
-          <rect x="200" y="60" width="80" height="80" fill="transparent" stroke="#ccc" strokeWidth="2" className="cursor-pointer hover:fill-current" style={{ color: currentColor }} onClick={(e) => e.target.style.fill = currentColor} />
-          <polygon points="320,140 360,60 400,140" fill="transparent" stroke="#ccc" strokeWidth="2" className="cursor-pointer hover:fill-current" style={{ color: currentColor }} onClick={(e) => e.target.style.fill = currentColor} />
-          <path d="M50 200 Q 100 160 150 200 T 250 200" fill="transparent" stroke="#ccc" strokeWidth="3" className="cursor-pointer hover:stroke-current" style={{ color: currentColor }} onClick={(e) => e.target.style.stroke = currentColor} />
+          <circle cx="100" cy="100" r="40" fill="transparent" stroke="#ccc" strokeWidth="2" className="cursor-pointer hover:fill-current" style={{ color: currentColor }} onClick={(e) => (e.target as SVGElement).style.fill = currentColor} />
+          <rect x="200" y="60" width="80" height="80" fill="transparent" stroke="#ccc" strokeWidth="2" className="cursor-pointer hover:fill-current" style={{ color: currentColor }} onClick={(e) => (e.target as SVGElement).style.fill = currentColor} />
+          <polygon points="320,140 360,60 400,140" fill="transparent" stroke="#ccc" strokeWidth="2" className="cursor-pointer hover:fill-current" style={{ color: currentColor }} onClick={(e) => (e.target as SVGElement).style.fill = currentColor} />
+          <path d="M50 200 Q 100 160 150 200 T 250 200" fill="transparent" stroke="#ccc" strokeWidth="3" className="cursor-pointer hover:stroke-current" style={{ color: currentColor }} onClick={(e) => (e.target as SVGElement).style.stroke = currentColor} />
         </svg>
       </div>
     </div>

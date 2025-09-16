@@ -179,15 +179,19 @@ export default function HomePage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-card to-muted">
-      {/* Header with new logo */}
+      {/* Header with OPCIÓN branding */}
       <header className="w-full p-6">
-        <div className="max-w-4xl mx-auto flex justify-center">
-          <div className="w-24 h-24 rounded-full overflow-hidden shadow-lg">
+        <div className="max-w-4xl mx-auto flex items-center gap-4">
+          <div className="w-16 h-16 rounded-full overflow-hidden border-2 border-white shadow-lg">
             <img 
-              src="/new_logo.png" 
-              alt="Inner World Logo" 
+              src="/LOGO_OPCION.jpg" 
+              alt="OPCIÓN Logo" 
               className="w-full h-full object-cover"
             />
+          </div>
+          <div>
+            <h1 className="text-2xl font-bold" style={{ color: "var(--opcion-orange)" }}>OPCIÓN</h1>
+            <p className="text-sm text-muted-foreground">Por los Derechos de Niñas y Niños</p>
           </div>
         </div>
       </header>
